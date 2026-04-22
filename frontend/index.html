@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CARA-X | Causal Adaptive Reasoning Architecture</title>
+    <meta name="description" content="The AI that learns WHY — not just WHAT. Autonomous causal world-model construction through interventional learning.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Cytoscape.js for causal graph -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <!-- Chart.js for learning curves -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- ═══ Sidebar Navigation ═══ -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="url(#grad1)" stroke-width="2.5"/><line x1="16" y1="10" x2="16" y2="22" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="16" x2="22" y2="16" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round"/><defs><linearGradient id="grad1" x1="0" y1="0" x2="32" y2="32"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs></svg>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-name">CARA-X</span>
+                    <span class="logo-version">v0.1.0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-label">OVERVIEW</div>
+            <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Dashboard
+            </button>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-label">COGNITIVE LAYERS</div>
+            <button class="nav-item" data-page="graph" onclick="showPage('graph')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><line x1="8.5" y1="7.5" x2="15.5" y2="16.5"/><line x1="8.5" y1="6" x2="15" y2="6"/></svg>
+                Causal Graph
+            </button>
+            <button class="nav-item" data-page="experiments" onclick="showPage('experiments')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6v7l4 8H5l4-8V3z"/><line x1="9" y1="3" x2="15" y2="3"/></svg>
+                Experiments
+            </button>
+            <button class="nav-item" data-page="memory" onclick="showPage('memory')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6 2 10c0 5.52 10 12 10 12s10-6.48 10-12c0-4-4.48-8-10-8z"/></svg>
+                Memory
+            </button>
+            <button class="nav-item" data-page="metacognition" onclick="showPage('metacognition')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Metacognition
+            </button>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-label">CONTROLS</div>
+            <button class="nav-item" data-page="controls" onclick="showPage('controls')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                Controls
+            </button>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="system-status" id="system-status">
+                <div class="status-dot online"></div>
+                <span>System Online</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ Main Content ═══ -->
+    <main id="main-content" class="main-content">
+        
+        <!-- ── DASHBOARD PAGE ── -->
+        <div id="page-dashboard" class="page active">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">CARA-X Dashboard</h1>
+                    <p class="page-subtitle">Causal Adaptive Reasoning Architecture — Extended</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary btn-glow" onclick="runEpisode()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Run Episode
+                    </button>
+                    <button class="btn btn-secondary" onclick="runDiscovery()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        Discover
+                    </button>
+                    <button class="btn btn-secondary" onclick="runConsolidation()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                        Consolidate
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card" id="stat-steps">
+                    <div class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="val-steps">0</span>
+                        <span class="stat-label">Total Steps</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-nodes">
+                    <div class="stat-icon emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="val-nodes">0</span>
+                        <span class="stat-label">Causal Nodes</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-edges">
+                    <div class="stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="val-edges">0</span>
+                        <span class="stat-label">Causal Edges</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-memories">
+                    <div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6 2 10c0 5.52 10 12 10 12s10-6.48 10-12c0-4-4.48-8-10-8z"/></svg></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="val-memories">0</span>
+                        <span class="stat-label">Episodic Memories</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-confidence">
+                    <div class="stat-icon rose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="val-confidence">0%</span>
+                        <span class="stat-label">Avg Confidence</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-hypotheses">
+                    <div class="stat-icon cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="val-hypotheses">0</span>
+                        <span class="stat-label">Hypotheses</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Architecture Layers Status -->
+            <div class="panel-grid">
+                <div class="panel glass">
+                    <h3 class="panel-title">Architecture Layers</h3>
+                    <div class="layers-list" id="layers-status">
+                        <div class="layer-item"><span class="layer-badge l1">L1</span><span class="layer-name">Environment Interface</span><span class="layer-status active">Active</span></div>
+                        <div class="layer-item"><span class="layer-badge l2">L2</span><span class="layer-name">Causal Discovery</span><span class="layer-status ready">Ready</span></div>
+                        <div class="layer-item"><span class="layer-badge l3">L3</span><span class="layer-name">World Model</span><span class="layer-status active">Active</span></div>
+                        <div class="layer-item"><span class="layer-badge l4">L4</span><span class="layer-name">Memory (CLS)</span><span class="layer-status active">Active</span></div>
+                        <div class="layer-item"><span class="layer-badge l5">L5</span><span class="layer-name">Reasoning (Groq)</span><span class="layer-status ready">Mock</span></div>
+                        <div class="layer-item"><span class="layer-badge l6">L6</span><span class="layer-name">Metacognition</span><span class="layer-status active">Active</span></div>
+                    </div>
+                </div>
+
+                <div class="panel glass">
+                    <h3 class="panel-title">Competence Boundaries</h3>
+                    <div id="competence-chart-container">
+                        <canvas id="competence-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="panel glass">
+                    <h3 class="panel-title">Activity Log</h3>
+                    <div class="activity-log" id="activity-log">
+                        <div class="log-entry"><span class="log-time">--:--</span><span class="log-msg">Awaiting first action...</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── CAUSAL GRAPH PAGE ── -->
+        <div id="page-graph" class="page">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Causal World Model</h1>
+                    <p class="page-subtitle">L3: Dynamic causal DAG with Bayesian confidence</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="refreshGraph()">Refresh</button>
+                    <button class="btn btn-secondary btn-sm" onclick="fitGraph()">Fit View</button>
+                    <select id="graph-layout" class="select-control" onchange="changeLayout()">
+                        <option value="cose">Force-Directed</option>
+                        <option value="circle">Circle</option>
+                        <option value="breadthfirst">Hierarchical</option>
+                        <option value="grid">Grid</option>
+                    </select>
+                </div>
+            </div>
+            <div class="graph-container">
+                <div id="causal-graph" class="graph-canvas"></div>
+                <div id="node-info" class="node-info-panel glass hidden">
+                    <h4 id="node-info-title">Node Details</h4>
+                    <div id="node-info-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── EXPERIMENTS PAGE ── -->
+        <div id="page-experiments" class="page">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Experiments & Hypotheses</h1>
+                    <p class="page-subtitle">L2/L5: Interventional learning pipeline</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="testNextHypothesis()">Test Next Hypothesis</button>
+                </div>
+            </div>
+            <div class="panel-grid two-col">
+                <div class="panel glass">
+                    <h3 class="panel-title">Hypothesis Queue</h3>
+                    <div id="hypothesis-queue" class="data-list"></div>
+                </div>
+                <div class="panel glass">
+                    <h3 class="panel-title">Experiment History</h3>
+                    <div id="experiment-history" class="data-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── MEMORY PAGE ── -->
+        <div id="page-memory" class="page">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Three-Tier Memory</h1>
+                    <p class="page-subtitle">L4: CLS-Inspired complementary learning systems</p>
+                </div>
+            </div>
+            <div class="memory-tiers">
+                <div class="panel glass">
+                    <h3 class="panel-title"><span class="tier-badge episodic">EPISODIC</span> Fast, High-Fidelity, Decaying</h3>
+                    <div id="episodic-memories" class="data-list"></div>
+                </div>
+                <div class="panel glass">
+                    <h3 class="panel-title"><span class="tier-badge semantic">SEMANTIC</span> Causal Rules (Graph)</h3>
+                    <div id="semantic-summary"></div>
+                </div>
+                <div class="panel glass">
+                    <h3 class="panel-title"><span class="tier-badge procedural">PROCEDURAL</span> Action Skills</h3>
+                    <div id="procedural-memories" class="data-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── METACOGNITION PAGE ── -->
+        <div id="page-metacognition" class="page">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Metacognition</h1>
+                    <p class="page-subtitle">L6: What the system knows, doesn't know, and where to explore next</p>
+                </div>
+            </div>
+            <div class="panel-grid two-col">
+                <div class="panel glass">
+                    <h3 class="panel-title">Exploration Priorities</h3>
+                    <div id="exploration-priorities" class="data-list"></div>
+                </div>
+                <div class="panel glass">
+                    <h3 class="panel-title">Learning Curve</h3>
+                    <canvas id="learning-curve-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── CONTROLS PAGE ── -->
+        <div id="page-controls" class="page">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Engine Controls</h1>
+                    <p class="page-subtitle">Run episodes, discovery, interventions, and consolidation</p>
+                </div>
+            </div>
+            <div class="panel-grid two-col">
+                <div class="panel glass">
+                    <h3 class="panel-title">Run Episode</h3>
+                    <div class="control-group">
+                        <label>Steps per Episode</label>
+                        <input type="number" id="ctrl-steps" value="50" min="10" max="500" class="input-control">
+                    </div>
+                    <div class="control-group">
+                        <label>Explore Rate</label>
+                        <input type="range" id="ctrl-explore" min="0" max="100" value="30" class="range-control">
+                        <span id="ctrl-explore-val">0.30</span>
+                    </div>
+                    <button class="btn btn-primary btn-block" onclick="runEpisode()">Run Episode</button>
+                </div>
+                <div class="panel glass">
+                    <h3 class="panel-title">Intervene (do-calculus)</h3>
+                    <div class="control-group">
+                        <label>Variable</label>
+                        <input type="text" id="ctrl-var" placeholder="e.g. auth_cpu" class="input-control">
+                    </div>
+                    <div class="control-group">
+                        <label>Value</label>
+                        <input type="number" id="ctrl-val" value="90" class="input-control">
+                    </div>
+                    <button class="btn btn-primary btn-block" onclick="runIntervention()">Execute do(X=x)</button>
+                </div>
+            </div>
+            <div class="panel glass" style="margin-top: 1rem;">
+                <h3 class="panel-title">Ground-Truth Evaluation</h3>
+                <div id="evaluation-results" class="eval-grid"></div>
+                <button class="btn btn-secondary" onclick="evaluateGraph()" style="margin-top: 1rem;">Evaluate vs Ground Truth</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
