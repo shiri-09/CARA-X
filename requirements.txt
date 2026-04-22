@@ -1,0 +1,43 @@
+# ============================================================
+# CARA-X: Causal Adaptive Reasoning Architecture — Extended
+# Python Dependencies
+# ============================================================
+
+# --- Core Framework ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+python-dotenv==1.0.1
+httpx==0.28.1
+
+# --- Causal Discovery (L2) ---
+causal-learn==0.1.3.8        # CMU/PyWhy — PC, FCI, GES algorithms
+gcastle==1.0.3               # Huawei — NOTEARS, GOLEM, gradient-based
+pgmpy==0.1.26                # Bayesian structure learning, posterior over DAGs
+dowhy==0.11.1                # Microsoft/PyWhy — causal inference, counterfactuals
+
+# --- Graph & Scientific Computing ---
+networkx==3.4.2              # In-memory graph (Neo4j-ready abstraction)
+numpy==1.26.4
+scipy==1.14.1
+scikit-learn==1.6.1
+pandas==2.2.3
+
+# --- Memory (L4) ---
+# Qdrant client for production; in-memory for dev
+qdrant-client==1.12.1
+
+# --- RL Environments (L1) ---
+gymnasium==1.0.0
+minigrid==2.3.1
+
+# --- LLM Reasoning (L5) ---
+groq==0.15.0                 # Groq API (Llama 3, Mixtral — fast inference)
+
+# --- Utilities ---
+loguru==0.7.3                # Structured logging
+rich==13.9.4                 # Rich terminal output
+websockets==14.1             # WebSocket support
+aiosqlite==0.20.0            # Async SQLite for procedural memory
+orjson==3.10.12              # Fast JSON serialization
